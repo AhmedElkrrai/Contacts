@@ -10,12 +10,10 @@ public class Contact {
 
     private String firstName;
     private String lastName;
-    private int priority;
 
-    public Contact(String firstName, String lastName,int priority) {
+    public Contact(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.priority = priority;
     }
 
     public void setId(int id) {
@@ -34,8 +32,6 @@ public class Contact {
         return lastName;
     }
 
-    public int getPriority() {
-        return priority;
-    }
+
 
 }

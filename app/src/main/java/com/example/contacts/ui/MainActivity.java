@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AddEditContactActivity.class);
                 intent.putExtra(AddEditContactActivity.EXTRA_LAST_NAME, Contact.getLastName());
                 intent.putExtra(AddEditContactActivity.EXTRA_FIRST_NAME, Contact.getFirstName());
-                intent.putExtra(AddEditContactActivity.EXTRA_PRIORITY, Contact.getPriority());
                 intent.putExtra(AddEditContactActivity.EXTRA_ID, Contact.getId());
                 startActivityForResult(intent, EDIT_Contact_REQUEST);
             }
@@ -99,9 +98,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == ADD_Contact_REQUEST && resultCode == RESULT_OK) {
             String firstName = data.getStringExtra(AddEditContactActivity.EXTRA_FIRST_NAME);
             String lastName = data.getStringExtra(AddEditContactActivity.EXTRA_LAST_NAME);
-            int priority = data.getIntExtra(AddEditContactActivity.EXTRA_PRIORITY, 1);
 
-            Contact Contact = new Contact(firstName, lastName, priority);
+            Contact Contact = new Contact(firstName, lastName);
             ContactViewModel.insert(Contact);
 
             Toast.makeText(this, "Contact Saved", Toast.LENGTH_SHORT).show();
@@ -114,9 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
             String title = data.getStringExtra(AddEditContactActivity.EXTRA_FIRST_NAME);
             String description = data.getStringExtra(AddEditContactActivity.EXTRA_LAST_NAME);
-            int priority = data.getIntExtra(AddEditContactActivity.EXTRA_PRIORITY, 1);
 
-            Contact Contact = new Contact(title, description, priority);
+            Contact Contact = new Contact(title, description);
             Contact.setId(id);
 
             ContactViewModel.update(Contact);

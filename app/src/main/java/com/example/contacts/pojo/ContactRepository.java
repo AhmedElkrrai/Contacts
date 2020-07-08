@@ -15,7 +15,7 @@ import java.util.List;
 public class ContactRepository {
 
     private ContactDAO contactDAO;
-    private LiveData<List<Contact>> allNotes;
+    private LiveData<List<Contact>> allContacts;
 
 
     // in viewModel we will pass an application
@@ -29,7 +29,7 @@ public class ContactRepository {
         // the abstract notDAO() method in NoteDatabase.getInstance() method
         contactDAO = contactDatabase.contactDAO();
 
-        allNotes = contactDAO.getAllContacts();
+        allContacts = contactDAO.getAllContacts();
     }
 
     // Room does not allow database operations on the main thread
@@ -51,8 +51,8 @@ public class ContactRepository {
         new DeleteAllContactAsyncTask(contactDAO).execute();
     }
 
-    public LiveData<List<Contact>> getAllNotes() {
-        return allNotes;
+    public LiveData<List<Contact>> getAllContacts() {
+        return allContacts;
     }
 
     private static class InsertContactAsyncTask extends AsyncTask<Contact, Void, Void> {

@@ -27,7 +27,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
         holder.firstName.setText(Contacts.get(position).getFirstName());
-        holder.priority.setText(String.valueOf(Contacts.get(position).getPriority()));
         holder.lastName.setText(Contacts.get(position).getLastName());
     }
 
@@ -47,13 +46,11 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactV
 
     public class ContactViewHolder extends RecyclerView.ViewHolder {
         private TextView firstName;
-        private TextView priority;
         private TextView lastName;
 
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             firstName = itemView.findViewById(R.id.first_name);
-            priority = itemView.findViewById(R.id.priority);
             lastName = itemView.findViewById(R.id.last_name);
 
             itemView.setOnClickListener(new View.OnClickListener() {

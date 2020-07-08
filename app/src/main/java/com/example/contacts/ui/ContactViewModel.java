@@ -26,7 +26,7 @@ public class ContactViewModel extends AndroidViewModel {
     public ContactViewModel(@NonNull Application application) {
         super(application);
         repository = new ContactRepository(application);
-        allContacts = repository.getAllNotes();
+        allContacts = repository.getAllContacts();
     }
 
     public void insert(Contact contact) {
