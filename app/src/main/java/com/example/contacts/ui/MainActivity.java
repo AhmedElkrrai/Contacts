@@ -2,6 +2,8 @@ package com.example.contacts.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -9,7 +11,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -72,9 +77,29 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                ContactViewModel.delete(ContactAdapter.getContactAt(viewHolder.getAdapterPosition()));
-                Toast.makeText(MainActivity.this, "Contact Deleted", Toast.LENGTH_SHORT).show();
+            public void onSwiped(@NonNull final RecyclerView.ViewHolder viewHolder, int direction) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                builder.setTitle("Delete Contact");
+                builder.setMessage("Are you sure you want to delete the contact");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ContactViewModel.delete(ContactAdapter.getContactAt(viewHolder.getAdapterPosition()));
+                        Toast.makeText(MainActivity.this, "Contact Deleted", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Contact contact = ContactAdapter.getContactAt(viewHolder.getAdapterPosition());
+                        ContactViewModel.delete(ContactAdapter.getContactAt(viewHolder.getAdapterPosition()));
+                        ContactViewModel.insert(contact);
+                    }
+                });
+
+                builder.show();
             }
         }).attachToRecyclerView(recyclerView);
 
@@ -134,11 +159,28 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.delete_all_contacts:
-                ContactViewModel.deleteAllContacts();
-                Toast.makeText(this, "All Contacts Deleted", Toast.LENGTH_SHORT).show();
+                showDialog("Delete All Contacts", "Are you sure you want to delete all contacts?");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void showDialog(String title, CharSequence message ) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(title);
+
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                    ContactViewModel.deleteAllContacts();
+                    Toast.makeText(MainActivity.this, "All Contacts Deleted", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 }
