@@ -10,10 +10,13 @@ public class Contact {
 
     private String firstName;
     private String lastName;
+    private String phoneNumber;
 
-    public Contact(String firstName, String lastName) {
+
+    public Contact(String firstName, String lastName, String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
     }
 
     public void setId(int id) {
@@ -32,6 +35,13 @@ public class Contact {
         return lastName;
     }
 
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
 
 }
