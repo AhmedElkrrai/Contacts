@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.ItemTouchUIUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
     String contactNumber;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        final ContactAdapter ContactAdapter = new ContactAdapter();
-        recyclerView.setAdapter(ContactAdapter);
+        final ContactAdapter contactAdapter = new ContactAdapter();
+        recyclerView.setAdapter(contactAdapter);
 
         // we do not initialize ContactViewModel using new keyword or whenever a new activity is created
         // a new viewModel will be created, instead we ask the android system to create a viewModel
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         ContactViewModel.getAllContacts().observe(this, new Observer<List<Contact>>() {
             @Override
             public void onChanged(List<Contact> Contacts) {
-                ContactAdapter.setList(Contacts);
+                contactAdapter.setList(Contacts);
             }
         });
 
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ContactViewModel.delete(ContactAdapter.getContactAt(viewHolder.getAdapterPosition()));
+                        ContactViewModel.delete(contactAdapter.getContactAt(viewHolder.getAdapterPosition()));
                         Toast.makeText(MainActivity.this, "Contact Deleted", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -101,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Contact contact = ContactAdapter.getContactAt(viewHolder.getAdapterPosition());
-                        ContactViewModel.delete(ContactAdapter.getContactAt(viewHolder.getAdapterPosition()));
+                        Contact contact = contactAdapter.getContactAt(viewHolder.getAdapterPosition());
+                        ContactViewModel.delete(contactAdapter.getContactAt(viewHolder.getAdapterPosition()));
                         ContactViewModel.insert(contact);
                     }
                 });
@@ -111,9 +112,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attachToRecyclerView(recyclerView);
 
-        ContactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
+
+        contactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(final Contact contact) {
+            public void onItemClicked(final Contact contact) {
+                Log.i(TAG, "onItemClick: fuck1 " + contactNumber);
 
                 Intent intent = new Intent(MainActivity.this, AddEditContactActivity.class);
                 intent.putExtra(AddEditContactActivity.EXTRA_FIRST_NAME, contact.getFirstName());
@@ -122,21 +125,20 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(AddEditContactActivity.EXTRA_ID, contact.getId());
                 startActivityForResult(intent, EDIT_Contact_REQUEST);
 
-                ImageView call = findViewById(R.id.call);
-                call.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        contactNumber = contact.getPhoneNumber();
-                        makePhoneCall();
-                    }
-                });
             }
+
+            @Override
+            public void onCallClicked(Contact contact) {
+                contactNumber = contact.getPhoneNumber();
+                makePhoneCall();
+            }
+
         });
 
 
     }
 
-    private void makePhoneCall() {
+    public void makePhoneCall() {
         if (contactNumber.trim().length() > 0) {
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
                 String dial = "tel:" + contactNumber;
@@ -147,6 +149,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         } else Toast.makeText(this, "Please Enter Phone Number", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CALL_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                makePhoneCall();
+            } else Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -218,12 +229,4 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CALL_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                makePhoneCall();
-            } else Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-        }
-    }
 }
