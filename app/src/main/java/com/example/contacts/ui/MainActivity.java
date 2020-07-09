@@ -2,24 +2,29 @@ package com.example.contacts.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.contacts.R;
@@ -34,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private ContactViewModel ContactViewModel;
     public static final int ADD_Contact_REQUEST = 1;
     public static final int EDIT_Contact_REQUEST = 2;
+    private static final int REQUEST_CALL_CODE = 3;
+
+    String contactNumber;
 
 
     @Override
@@ -105,16 +113,40 @@ public class MainActivity extends AppCompatActivity {
 
         ContactAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(Contact Contact) {
+            public void onItemClick(final Contact contact) {
+
                 Intent intent = new Intent(MainActivity.this, AddEditContactActivity.class);
-                intent.putExtra(AddEditContactActivity.EXTRA_FIRST_NAME, Contact.getFirstName());
-                intent.putExtra(AddEditContactActivity.EXTRA_LAST_NAME, Contact.getLastName());
-                intent.putExtra(AddEditContactActivity.EXTRA_PHONE_NUMBER, Contact.getPhoneNumber());
-                intent.putExtra(AddEditContactActivity.EXTRA_ID, Contact.getId());
+                intent.putExtra(AddEditContactActivity.EXTRA_FIRST_NAME, contact.getFirstName());
+                intent.putExtra(AddEditContactActivity.EXTRA_LAST_NAME, contact.getLastName());
+                intent.putExtra(AddEditContactActivity.EXTRA_PHONE_NUMBER, contact.getPhoneNumber());
+                intent.putExtra(AddEditContactActivity.EXTRA_ID, contact.getId());
                 startActivityForResult(intent, EDIT_Contact_REQUEST);
+
+                ImageView call = findViewById(R.id.call);
+                call.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        contactNumber = contact.getPhoneNumber();
+                        makePhoneCall();
+                    }
+                });
             }
         });
 
+
+    }
+
+    private void makePhoneCall() {
+        if (contactNumber.trim().length() > 0) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                String dial = "tel:" + contactNumber;
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+            } else {
+                //show a dialog to the user to ask him for the permission
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL_CODE);
+
+            }
+        } else Toast.makeText(this, "Please Enter Phone Number", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -184,5 +216,14 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setNegativeButton("Cancel", null);
         builder.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CALL_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                makePhoneCall();
+            } else Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+        }
     }
 }
