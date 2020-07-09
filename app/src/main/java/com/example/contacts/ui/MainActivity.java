@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.ItemTouchUIUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,9 +23,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.contacts.R;
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_Contact_REQUEST = 2;
     private static final int REQUEST_CALL_CODE = 3;
 
-    String contactNumber;
+    private String contactNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,16 +176,17 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            String title = data.getStringExtra(AddEditContactActivity.EXTRA_FIRST_NAME);
-            String description = data.getStringExtra(AddEditContactActivity.EXTRA_LAST_NAME);
+            String firstName = data.getStringExtra(AddEditContactActivity.EXTRA_FIRST_NAME);
+            String lastName = data.getStringExtra(AddEditContactActivity.EXTRA_LAST_NAME);
+            String phoneNumber = data.getStringExtra(AddEditContactActivity.EXTRA_PHONE_NUMBER);
 
-            Contact Contact = new Contact(title, description);
+            Contact Contact = new Contact(firstName, lastName, phoneNumber);
             Contact.setId(id);
 
             ContactViewModel.update(Contact);
             Toast.makeText(this, "Contact Updated", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Contact not Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Contact is not Saved", Toast.LENGTH_SHORT).show();
         }
     }
 

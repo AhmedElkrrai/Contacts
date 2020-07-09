@@ -106,7 +106,7 @@ public class ContactRepository {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            contactDAO.deleteAllNotes();
+            contactDAO.deleteAllContacts();
             return null;
         }
     }

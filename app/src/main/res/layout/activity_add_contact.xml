@@ -22,4 +22,11 @@
         android:hint="@string/last_name"
         android:inputType="textMultiLine" />
 
+    <EditText
+        android:id="@+id/add_phone_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/phone_number"
+        android:inputType="number" />
+
 </LinearLayout>
